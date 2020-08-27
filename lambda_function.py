@@ -1,5 +1,4 @@
 import json
-#import random
 import requests
 import boto3
 from bs4 import BeautifulSoup
@@ -21,9 +20,8 @@ def lambda_handler(event, context):
     url5= 'https://www.domiporta.pl/mieszkanie/sprzedam/dolnoslaskie/wroclaw?Surface.From=30&Price.From=200000&Price.To=400000&Rooms.From=2&PricePerMeter.From=3000&Rynek=Wtorny'
     
     
-    # # Scraping url1: otodom.pl
     
-    # In[2]:
+    # # Scraping url1: otodom.pl
     
     
     def get_last_page1(url):
@@ -68,10 +66,7 @@ def lambda_handler(event, context):
                 
         return list_of_soups
     
-    
-    # In[3]:
-    
-    
+
     all_ads1 = []
     
     try:
@@ -96,11 +91,10 @@ def lambda_handler(event, context):
     
     
     
+    
     # # Scraping url2: gratka.pl
-    
-    # In[5]:
-    
-    
+
+
     def get_last_page2(url):
         
         result = requests.get(url)
@@ -130,8 +124,6 @@ def lambda_handler(event, context):
         return list_of_soups2
     
     
-    # In[6]:
-    
     
     all_ads2 = []
     
@@ -157,10 +149,8 @@ def lambda_handler(event, context):
     
     
     
+    
     # # Scraping url3: szybko.pl
-    
-    # In[8]:
-    
     
     def get_last_page3(url):
     
@@ -206,10 +196,10 @@ def lambda_handler(event, context):
             ad=[name,district,int(price),int(rooms),round(float(sq)),int(price_sq),link]
             all_ads3.append(ad)
     
+    
+    
+    
     # # Scraping url4: morizon.pl
-    
-    # In[11]:
-    
     
     def get_last_page4(url):
     
@@ -237,9 +227,6 @@ def lambda_handler(event, context):
                 break
                 
         return list_of_soups
-    
-    
-    # In[12]:
     
     
     all_ads4 = []
@@ -278,9 +265,6 @@ def lambda_handler(event, context):
     
     # # Scraping url5: domiporta.pl
     
-    # In[14]:
-    
-    
     def get_last_page5(url):
     
         result = requests.get(url)
@@ -308,10 +292,6 @@ def lambda_handler(event, context):
                 
         return list_of_soups
     
-    
-    # In[15]:
-    
-    
     all_ads5 = []
     
     try:
@@ -332,14 +312,13 @@ def lambda_handler(event, context):
     
                 except Exception as e:
                     #price = s.find("p",{'class': 'single-result__price'})#.text.strip().replace('zł','').replace(u'\xa0','')
-                    print(e)
+                    print(e,'/probably not a real listing')
                     continue
                             
     except Exception as e:
         print('error: website changed or unresponsive. Exception:',e)
-    
-    
-    # In[16]:
+        
+        
     
     
     
@@ -356,7 +335,8 @@ def lambda_handler(event, context):
         translator=str.maketrans(strange,ascii_replacements)  
         
         return input_text.translate(translator)
-
+    
+    
     #remove duplicates using set()
     s = set()
     original_ads = []
@@ -367,7 +347,8 @@ def lambda_handler(event, context):
             s.add(l)
             original_ads.append([name, district, price, rooms, sqm, price_sq, link])
             
-        # filter by the name of district
+            
+    # filter by the name of district
     rejected_ads = []
     selected_ads = []
     for ad in original_ads: 
@@ -437,7 +418,6 @@ def lambda_handler(event, context):
     
         
     # send new coordinates to the DynamoDB
-    
     for i in range(len(coordinates)):
         coordinates[i]['district']=removeAccents(coordinates[i]['district'])
         body = coordinates[i] #turn each dictionary in the inp list into json object
@@ -457,7 +437,7 @@ def lambda_handler(event, context):
                 selected_ads[i].append(coordinatesDB[j]["lng"])
     
     
-    # # Send to database
+    # # Send to S3 and then to another Lambda and to RDS
     
     keys=['ID','Name','District','Price','Rooms','sqm','Price_sq','Link','Latitude', 'Longitude']
     
@@ -483,7 +463,7 @@ def lambda_handler(event, context):
     for i in range(len(inp)):
         
         if i < 10:
-            ID=int(timestamp+str('0000')+str(i))
+            ID=int(timestamp+str('000')+str(i))
             
         elif i > 9 and i < 100:
             ID=int(timestamp+str('00')+str(i))
@@ -492,16 +472,19 @@ def lambda_handler(event, context):
             ID=int(timestamp+str('0')+str(i))
             
         elif i > 999 and i < 10000:
-            ID=int(timestamp[:-1]+str('')+str(i))
+            ID=int(timestamp+str('')+str(i))
                     
         else:
             raise Exception("ID wasn't generated, over 10 000 records")
         
         inp[i]["ID"]=ID
     
+    
+    # # 
+    
     # test for bugs and notify through SNS if any are found
     if len(all_ads1)==0 or len(all_ads2)==0 or len(all_ads3)==0 or len(all_ads4)==0 or len(all_ads5)==0 or len(selected_ads)==0:
-        er='Housing Wroclaw Scraper Lambda error'
+        er='Lambda error: Housing Wroclaw Scraper'
         msg=f"""None of the values should be zero:
 scraped ads: 1,2,3,4,5: {len(all_ads1),len(all_ads2),len(all_ads3),len(all_ads4),len(all_ads5)}
 all_ads: {len(all_ads)}
@@ -513,7 +496,7 @@ Check Lambda: https://eu-west-2.console.aws.amazon.com/lambda/home?region=eu-wes
 Check CloudWatch: https://eu-west-2.console.aws.amazon.com/cloudwatch/home?region=eu-west-2#logStream:group=%252Faws%252Flambda%252Fhousing_wroclaw_scrape"""
         
         print(er,msg)
-        
+
         client = boto3.client('sns')
         response = client.publish(
             TargetArn='arn:aws:sns:eu-west-2:709303708159:dynamodb',
@@ -534,4 +517,4 @@ Check CloudWatch: https://eu-west-2.console.aws.amazon.com/cloudwatch/home?regio
              Key='housing_wroclaw.data'
         )
     
-    return 'NOTHING SHOULD BE ZERO!','coordinates:',len(coordinatesDB),'original_ads:',len(original_ads),'selected_ads:',len(selected_ads),'ADS 1,2,3,4,5:',len(all_ads1),len(all_ads2),len(all_ads3),len(all_ads4),len(all_ads5),'ALL ADS:',len(all_ads)
+    return 'NOTHING WAS ZERO!','coordinates:',len(coordinatesDB),'original_ads:',len(original_ads),'selected_ads:',len(selected_ads),'ADS 1,2,3,4,5:',len(all_ads1),len(all_ads2),len(all_ads3),len(all_ads4),len(all_ads5),'ALL ADS:',len(all_ads)
