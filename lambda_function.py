@@ -479,8 +479,7 @@ def lambda_handler(event, context):
         
         inp[i]["ID"]=ID
     
-    
-    # # 
+
     
     # test for bugs and notify through SNS if any are found
     if len(all_ads1)==0 or len(all_ads2)==0 or len(all_ads3)==0 or len(all_ads4)==0 or len(all_ads5)==0 or len(selected_ads)==0:
