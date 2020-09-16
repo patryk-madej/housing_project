@@ -36,9 +36,9 @@ Resources:
       Environment:
         Variables:
           database: new_schema
-          endpoint: housing-db.c8oksowpazwg.eu-west-2.rds.amazonaws.com
-          password: Nerejow16
-          username: admin
+          endpoint: housing-db.xxxxxxxxx.eu-west-2.rds.amazonaws.com
+          password: xxxxxxxxxx
+          username: xxxxxxxxxx
       Tracing: Active
       Layers:
         - >-
