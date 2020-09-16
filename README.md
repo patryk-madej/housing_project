@@ -8,3 +8,4 @@ What could be improved:
 - Second Lambda could be the one calling Google Maps API, this way we would get a separate microservice for dealing with coordinates.
 - Instead of interacting RDS directly, local host could send requests to the 3rd Lambda via another API Gateway. This would improve the database security, but make it difficult to use MySQL workbench.
 - Local host could be completely removed from the application and an EC2 instance or a AWS SageMaker could be used instead. However, this would increase the costs.
+- CloudFormation (or Terraform, to include GCP) tamplate could be written to enable easy deployment.
