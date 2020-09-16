@@ -1,0 +1,37 @@
+import pymysql
+import boto3
+import json
+from os import environ
+
+connection = pymysql.connect(environ['endpoint'], user=environ['username'], passwd=environ['password'], db=environ['database'])
+
+
+
+def lambda_handler(event, context):
+	
+	s3 = boto3.client('s3')
+	response = s3.get_object(Bucket='housing-scraper',Key='housing_wroclaw.data')
+	inp=list(json.loads(response['Body'].read()))
+	print(len(inp),type(inp))
+	
+	# create a list of tuples from dictionary values
+	values=[]
+	for mydict in inp:
+	    values.append(tuple(mydict.values()))
+	
+	# insert and commit
+	sql = "INSERT INTO housing_wroclaw (`ID`, `Name`, `District`, `Price`, `Rooms`, `sqm`, `Price_sq`, `Link`, `Latitude`, `Longitude`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
+	print(len(inp))
+	
+	cursor = connection.cursor()
+	cursor.executemany(sql,values)
+	connection.commit()
+	connection.close()
+	return 'this many was in input:', len(inp)
+	'''
+	#test connection
+	cursor = connection.cursor()
+	cursor.execute('SELECT * from test')
+	rows = cursor.fetchall()
+	for row in rows:
+		print(row)'''
