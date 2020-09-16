@@ -1,0 +1,30 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: An AWS Serverless Specification template describing your function.
+Resources:
+  housingwroclawput:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: lambda_function.lambda_handler
+      Runtime: python3.8
+      CodeUri: .
+      Description: ''
+      MemorySize: 128
+      Timeout: 30
+      Role: 'arn:aws:iam::709303708159:role/service-role/Lambda-DynamoDB-BasicWrite'
+      Events:
+        Api1:
+          Type: Api
+          Properties:
+            Path: /housing_wroclaw_put
+            Method: POST
+        Api2:
+          Type: Api
+          Properties:
+            Path: /housing_wroclaw_put
+            Method: PUT
+        Api3:
+          Type: Api
+          Properties:
+            Path: /housing_wroclaw_put
+            Method: POST

@@ -1,0 +1,47 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: Lambda3 - reads S3 and saves to RDS
+Resources:
+  housiungwroclawrds:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: handler.lambda_handler
+      Runtime: python3.8
+      CodeUri: .
+      Description: Lambda3 - reads S3 and saves to RDS
+      MemorySize: 128
+      Timeout: 120
+      Role: 'arn:aws:iam::709303708159:role/service-role/lambda_scrapeToRDS'
+      Events:
+        BucketEvent1:
+          Type: S3
+          Properties:
+            Bucket:
+              Ref: Bucket1
+            Events:
+              - 's3:ObjectCreated:*'
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: .data
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-01fe3c710e24dae86
+          - sg-0ffabdced8c9649fd
+        SubnetIds:
+          - subnet-22c98c4b
+          - subnet-db73f2a1
+          - subnet-12a3745e
+      Environment:
+        Variables:
+          database: new_schema
+          endpoint: housing-db.c8oksowpazwg.eu-west-2.rds.amazonaws.com
+          password: Nerejow16
+          username: admin
+      Tracing: Active
+      Layers:
+        - >-
+          arn:aws:lambda:eu-west-2:770693421928:layer:Klayers-python38-requests-html:11
+  Bucket1:
+    Type: 'AWS::S3::Bucket'

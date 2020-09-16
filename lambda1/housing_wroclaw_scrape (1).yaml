@@ -1,0 +1,29 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: 'triggers at 8 am, sends to s3 or sns if errors'
+Resources:
+  housingwroclawscrape:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: lambda_function.lambda_handler
+      Runtime: python3.8
+      CodeUri: .
+      Description: 'triggers at 8 am, sends to s3 or sns if errors'
+      MemorySize: 512
+      Timeout: 600
+      Role: 'arn:aws:iam::709303708159:role/service-role/scraperRole'
+      Events:
+        Schedule1:
+          Type: Schedule
+          Properties:
+            Schedule: cron(0 8 * * ? *)
+      Environment:
+        Variables:
+          apigateway_DBendpoint: >-
+            https://ug8v51ci58.execute-api.eu-west-2.amazonaws.com/default/housing_wroclaw_put
+          google_api_key: AIzaSyCJTwPcNPlyFnPDsNtn8p5_s4sga8PZ1E0
+      Tracing: Active
+      Layers:
+        - 'arn:aws:lambda:eu-west-2:709303708159:layer:beautiful_soup:1'
+        - >-
+          arn:aws:lambda:eu-west-2:770693421928:layer:Klayers-python38-requests:9
