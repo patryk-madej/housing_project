@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: 'AWS::Serverless-2016-10-31'
-Description: 'triggers at 8 am, sends to s3 or sns if errors'
+Description: 'Lambda 1: triggers at 8 am, sends to s3 or sns if errors'
 Resources:
   housingwroclawscrape:
     Type: 'AWS::Serverless::Function'
@@ -20,8 +20,8 @@ Resources:
       Environment:
         Variables:
           apigateway_DBendpoint: >-
-            https://ug8v51ci58.execute-api.eu-west-2.amazonaws.com/default/housing_wroclaw_put
-          google_api_key: AIzaSyCJTwPcNPlyFnPDsNtn8p5_s4sga8PZ1E0
+            https://xxxxxxxxx.execute-api.eu-west-2.amazonaws.com/default/housing_wroclaw_put
+          google_api_key: xxxxxxxxxxxxxxxxxxxxxx
       Tracing: Active
       Layers:
         - 'arn:aws:lambda:eu-west-2:709303708159:layer:beautiful_soup:1'
