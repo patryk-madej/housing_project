@@ -493,7 +493,8 @@ selected_ads: {len(selected_ads)}
 coordinates: {len(coordinatesDB)}
 
 Check Lambda: https://eu-west-2.console.aws.amazon.com/lambda/home?region=eu-west-2#/functions/housing_wroclaw_scrape?tab=configuration
-Check CloudWatch: https://eu-west-2.console.aws.amazon.com/cloudwatch/home?region=eu-west-2#logStream:group=%252Faws%252Flambda%252Fhousing_wroclaw_scrape"""
+Check CloudWatch: https://eu-west-2.console.aws.amazon.com/cloudwatch/home?region=eu-west-2#logStream:group=%252Faws%252Flambda%252Fhousing_wroclaw_scrape
+"""
         
         print(er,msg)
 
